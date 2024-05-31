@@ -1,0 +1,1 @@
+Exception tai ham export. Li do: Invalid input exception
