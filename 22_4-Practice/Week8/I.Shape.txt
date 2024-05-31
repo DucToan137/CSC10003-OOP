@@ -1,0 +1,260 @@
+#include "bits/stdc++.h"
+
+using namespace std;
+namespace Utils {
+    class String {
+    public:
+        static vector<string> split(string haystack, string needle) {
+            vector<string> result;
+            int startPos = 0;
+            size_t foundPos = haystack.find(needle, startPos);
+
+            while (foundPos != string::npos) {
+                int count = foundPos - startPos;
+                string token = haystack.substr(startPos, count);
+                result.push_back(token);
+
+                startPos = foundPos + needle.length();
+                foundPos = haystack.find(needle, startPos);
+            }
+
+            // The remaining
+            string token = haystack.substr(startPos, haystack.length() - startPos);
+            result.push_back(token);
+
+            return result;
+        }
+    };
+}
+
+class Object {
+public:
+	virtual std::string toString() = 0;
+};
+
+class IShape : public Object {
+public:	
+	virtual double area() = 0;
+	virtual double perimeter() = 0;
+	std::string toString() override {
+		return "Object.h";
+	};
+};
+
+class IParsable : public Object {
+public:
+	virtual Object* parse(std::string shape) = 0;
+	virtual std::string parsedObjectName() = 0;
+
+	std::string toString() override {
+		return "IParsable";
+	};
+};
+
+class ParserFactory : public Object {
+private:
+	std::map<std::string, IParsable*> _container; // A container for all the dependencies injection
+public:
+	void registerWith(IParsable* parser);
+	IParsable* create(std::string type);
+	std::string toString() override;
+};
+
+class Circle : public IShape {
+public:
+	inline static const double PI = 2 * asin(1);
+private:
+	double _radius;
+public:
+	Circle();
+	Circle(double radius);
+	double area() override;
+	double perimeter() override;
+	std::string toString() override;
+};
+
+class CircleParser : public IParsable {
+public:
+	Object* parse(std::string data) override;
+	std::string toString() override;
+	std::string parsedObjectName() override;
+};
+
+class Rectangle : public IShape {
+private:
+	double _width;
+	double _height;
+public:
+	Rectangle();
+	Rectangle(double width, double height);
+	double area() override;
+	double perimeter() override;
+	std::string toString() override;
+};
+
+class RectangleParser : public IParsable {
+public:
+	Object* parse(std::string data) override;
+	std::string toString() override;
+	std::string parsedObjectName() override;
+};
+
+class Square : public IShape {
+private:
+	double _a;
+public:
+	Square();
+	Square(double a);
+	double area() override;
+	double perimeter() override;
+	std::string toString() override;
+};
+
+class SquareParser : public IParsable {
+public:
+	Object* parse(std::string data) override;
+	std::string toString() override;
+	std::string parsedObjectName() override;
+};
+
+void ParserFactory::registerWith(IParsable* parser) {
+	_container.insert(
+		{ parser->parsedObjectName(), parser }
+	);
+}
+
+IParsable* ParserFactory::create(std::string type) {
+    IParsable* parser = NULL;
+    if ("Rectangle" == type) {
+        parser = new RectangleParser();
+    }
+    else if ("Square" == type) {
+        parser = new SquareParser();
+    }
+    else if ("Circle" == type) {
+        parser = new CircleParser();
+    }
+    this->registerWith(parser);
+    return _container[type];
+}
+
+std::string ParserFactory::toString() {
+    return "Move to ParseFactory";
+}
+
+Circle::Circle() {
+	_radius = 0.0f;
+}
+
+Circle::Circle(double radius) {
+	_radius = radius;
+}
+
+double Circle::area() {
+	return round(PI * _radius * _radius);
+}
+
+double Circle::perimeter() {
+	return round(PI * _radius * 2);
+}
+
+std::string Circle::toString() {
+	std::stringstream builder;
+	builder << "Circle";
+	return builder.str();
+}
+
+Object* CircleParser::parse(std::string data) {
+    vector<string> token = Utils::String::split(data, "=");
+    double radius = stod(token[1]);
+    return new Circle(radius);
+}
+
+std::string CircleParser::toString() {
+	return "Convert to Circle";
+}
+
+std::string CircleParser::parsedObjectName() {
+	return "Circle";
+}
+
+Rectangle::Rectangle() {
+	_width = 0.0f;
+	_height = 0.0f;
+}
+
+Rectangle::Rectangle(double width, double height) {
+	_width = width;
+	_height = height;
+}
+
+
+double Rectangle::area() {
+	return round(_width * _height);
+}
+
+double Rectangle::perimeter() {
+	return round(2 * (_width + _height));
+}
+
+std::string Rectangle::toString() {
+	std::stringstream builder;
+	builder  << "Rectangle";
+	return builder.str();
+}
+
+Object* RectangleParser::parse(std::string data) {
+    vector<string> token = Utils::String::split(data, ", ");
+    double width = stod((Utils::String::split(token[0], "="))[1]);
+    double height = stod((Utils::String::split(token[1], "="))[1]);
+    return new Rectangle(width, height);
+}
+
+std::string RectangleParser::toString() {
+	return "Convert to Rectangle";
+}
+
+std::string RectangleParser::parsedObjectName() {
+	return "Rectangle";
+}
+
+Square::Square() { 
+	_a = 0.0f;
+}
+
+Square::Square(double a) { 
+	_a = a;
+}
+
+
+double Square::area() {
+	return round(_a * _a);
+}
+
+
+double Square::perimeter() {
+	return round(_a * 4);
+}
+
+std::string Square::toString() {
+	std::stringstream builder;
+	builder << "Square";
+	return builder.str();
+}
+
+Object* SquareParser::parse(std::string data) {
+	vector<string> token = Utils::String::split(data, "=");
+	double a = stod(token[1]);
+	return new Square(a);
+}
+
+std::string SquareParser::toString() {
+	return "Convert to Square";
+}
+
+std::string SquareParser::parsedObjectName() {
+	return "Square";
+}
+
+#include "main.h"
+
