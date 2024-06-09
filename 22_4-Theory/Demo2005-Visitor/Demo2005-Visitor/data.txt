@@ -1,0 +1,4 @@
+Rectangle: width=7, height=8
+Rectangle: width=1, height=2
+Square: side=3
+Rectangle: width=7, height=9

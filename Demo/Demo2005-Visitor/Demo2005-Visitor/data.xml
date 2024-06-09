@@ -1,8 +1,0 @@
-<Shapes>
-<Rectangle Width="7" Height="8" />
-<Rectangle Width="1" Height="2" />
-<Square Side="3" /> 
-<Rectangle Width="7" Height="9" />
-<Triangle A="5" B="6" C="7" />
-<Triangle A="7" B="9" C="11" />
-</Shapes>
